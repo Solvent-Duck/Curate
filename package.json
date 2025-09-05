@@ -1,0 +1,28 @@
+{
+  "name": "curate-firefox-extension",
+  "version": "1.0.0",
+  "description": "A Firefox extension for filtering unwanted content from webpages",
+  "main": "manifest.json",
+  "scripts": {
+    "build": "echo 'No build process required - this is a pure WebExtension'",
+    "package": "echo 'Extension is ready to load in Firefox'"
+  },
+  "keywords": [
+    "firefox",
+    "extension",
+    "webextension",
+    "content-filter",
+    "blacklist",
+    "privacy"
+  ],
+  "author": "Curate Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/curate-firefox-extension.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/curate-firefox-extension/issues"
+  },
+  "homepage": "https://github.com/yourusername/curate-firefox-extension#readme"
+}

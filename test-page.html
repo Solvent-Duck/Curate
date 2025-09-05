@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curate Extension Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .highlight {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .news-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        .sidebar {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .nested-container {
+            border: 1px solid #ccc;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #fafafa;
+        }
+        .inner-content {
+            padding: 5px;
+        }
+        .media-container {
+            border: 1px solid #999;
+            margin: 10px 0;
+            padding: 15px;
+            background-color: #f0f0f0;
+        }
+        .news-article {
+            border: 1px solid #666;
+            margin: 15px 0;
+            padding: 20px;
+            background-color: #f8f8f8;
+            overflow: hidden;
+        }
+        .news-article h3 {
+            margin-top: 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Curate Extension Test Page</h1>
+    <p>This page contains various content to test the Curate extension's surgical content removal capabilities.</p>
+
+    <div class="container">
+        <h2>News Section</h2>
+        <div class="news-item">
+            <h3>Breaking News: Technology Advances</h3>
+            <p>Scientists discover new breakthrough in quantum computing that could revolutionize the industry.</p>
+        </div>
+        <div class="news-item">
+            <h3>Sports Update</h3>
+            <p>The local team wins championship after an exciting season finale.</p>
+        </div>
+        <div class="news-item">
+            <h3>Weather Report</h3>
+            <p>Sunny skies expected throughout the week with temperatures in the mid-70s.</p>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <h3>Popular Topics</h3>
+        <ul>
+            <li><a href="#">Technology News</a></li>
+            <li><a href="#">Sports Updates</a></li>
+            <li><a href="#">Weather Information</a></li>
+            <li><a href="#">Local Events</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <h2>Article Content</h2>
+        <p>This is a sample article about various topics. It contains information about <strong>technology</strong>, <em>sports</em>, and other subjects.</p>
+        
+        <div class="highlight">
+            <p>This highlighted section contains important information about current events and developments in various fields.</p>
+        </div>
+        
+        <p>More content follows here, including details about recent developments in science and technology.</p>
+    </div>
+
+    <div class="container">
+        <h2>Comments Section</h2>
+        <div class="comment">
+            <p><strong>User1:</strong> Great article about technology!</p>
+        </div>
+        <div class="comment">
+            <p><strong>User2:</strong> I found the sports section very informative.</p>
+        </div>
+        <div class="comment">
+            <p><strong>User3:</strong> The weather information was helpful for planning my weekend.</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Container Test</h2>
+        <div class="nested-container">
+            <div class="inner-content">
+                <p>This content contains <strong>technology</strong> terms that should be removed.</p>
+            </div>
+        </div>
+        <div class="nested-container">
+            <div class="inner-content">
+                <p>This content is about <em>sports</em> and should also be removed.</p>
+            </div>
+        </div>
+        <div class="nested-container">
+            <div class="inner-content">
+                <p>This content is about cooking and should remain visible.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Media Test</h2>
+        <div class="media-container">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzAwMCIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SW1hZ2U8L3RleHQ+PC9zdmc+" alt="Test Image" style="width: 100px; height: 100px; border: 1px solid #ccc;">
+            <p>This container has an image and should NOT be removed even if it contains <strong>technology</strong> terms.</p>
+        </div>
+        <div class="media-container">
+            <p>This container has no media and contains <em>sports</em> terms, so it should be removed.</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>News Article Test</h2>
+        <div class="news-article">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzAwMCIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SW1hZ2U8L3RleHQ+PC9zdmc+" alt="News Image" style="width: 150px; height: 100px; border: 1px solid #ccc; float: left; margin-right: 10px;">
+            <h3>Technology News Article</h3>
+            <p>This is a news article about <strong>technology</strong> advances. The image should be removed along with the text because it's part of the article content.</p>
+            <p>More details about the latest <strong>technology</strong> developments and innovations.</p>
+        </div>
+        <div class="news-article">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzAwMCIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SW1hZ2U8L3RleHQ+PC9zdmc+" alt="Sports Image" style="width: 150px; height: 100px; border: 1px solid #ccc; float: left; margin-right: 10px;">
+            <h3>Sports News Article</h3>
+            <p>This is a news article about <em>sports</em> events. The image should be removed along with the text because it's part of the article content.</p>
+            <p>More details about the latest <em>sports</em> championships and tournaments.</p>
+        </div>
+        <div class="news-article">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzAwMCIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SW1hZ2U8L3RleHQ+PC9zdmc+" alt="Cooking Image" style="width: 150px; height: 100px; border: 1px solid #ccc; float: left; margin-right: 10px;">
+            <h3>Cooking Article</h3>
+            <p>This is an article about cooking recipes. The image should remain visible because the content doesn't contain blacklisted terms.</p>
+            <p>More details about delicious recipes and cooking techniques.</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>This is a test page for the Curate Firefox extension. Add terms like "technology", "sports", or "weather" to your blacklist to see surgical content removal in action. Media is removed when it's part of content containing blacklisted terms (like news article images), but preserved when it's standalone.</p>
+    </footer>
+</body>
+</html>
