@@ -67,6 +67,21 @@
       box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
     }
     
+    select {
+      padding: 8px 12px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 14px;
+      background: white;
+      cursor: pointer;
+    }
+    
+    select:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+    }
+    
     button {
       padding: 8px 16px;
       background: #007bff;
@@ -147,6 +162,16 @@
       color: #212529;
     }
     
+    .term-info {
+      flex: 1;
+    }
+    
+    .term-level {
+      font-size: 12px;
+      color: #6c757d;
+      margin-top: 2px;
+    }
+    
     .remove-btn {
       background: #6c757d;
       padding: 4px 8px;
@@ -203,6 +228,11 @@
     <h3>Add Term to Blacklist</h3>
     <div class="input-group">
       <input type="text" id="newTerm" placeholder="Enter term to block..." maxlength="100">
+      <select id="filterLevel">
+        <option value="content">Content Only</option>
+        <option value="search">Search Results</option>
+        <option value="full">Full Block</option>
+      </select>
       <button id="addTerm">Add</button>
     </div>
     <div id="statusMessage" class="status-message"></div>

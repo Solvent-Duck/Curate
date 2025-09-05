@@ -1,9 +1,13 @@
 # Curate Firefox Extension
 
-A powerful Firefox extension that allows users to maintain a blacklist of terms to filter unwanted content from webpages.
+A powerful Firefox extension that allows users to maintain a blacklist of terms to filter unwanted content from webpages. The extension provides three levels of filtering strictness to give users precise control over what content is blocked.
 
 ## Features
 
+- **Three Filter Levels**: Choose how strictly to filter content
+  - **Content Only**: Blocks webpage content containing blacklisted terms
+  - **Search Results**: Prevents URLs containing blacklisted terms from appearing in search results
+  - **Full Block**: Blocks everything containing blacklisted terms, including entire pages
 - **Smart Content Filtering**: Automatically detects and hides content containing blacklisted terms
 - **Surgical Removal**: Only removes the smallest possible elements containing blacklisted terms, preserving page layout
 - **Real-time Updates**: Changes apply immediately across all open tabs without page refreshes
@@ -12,6 +16,23 @@ A powerful Firefox extension that allows users to maintain a blacklist of terms 
 - **Easy Management**: Simple popup interface for managing your blacklist
 - **Case Insensitive**: Terms matched regardless of capitalization
 - **Layout Preservation**: Removes content seamlessly without breaking page structure
+
+## Filter Levels Explained
+
+### Content Only
+- **What it does**: Hides webpage content containing blacklisted terms
+- **Best for**: Filtering specific topics or content types while keeping the page functional
+- **Example**: Hiding posts about "spoilers" on a forum while keeping the forum structure intact
+
+### Search Results  
+- **What it does**: Prevents search results and links containing blacklisted terms from appearing
+- **Best for**: Avoiding certain topics in search results and navigation
+- **Example**: Hiding search results for "clickbait" articles while browsing news sites
+
+### Full Block
+- **What it does**: Completely blocks pages containing blacklisted terms
+- **Best for**: Avoiding entire pages or sites related to specific topics
+- **Example**: Blocking entire pages about "malware" or "scams"
 
 ## Installation
 

@@ -5,6 +5,7 @@ let blacklist = [];
 
 // DOM elements
 const newTermInput = document.getElementById('newTerm');
+const filterLevelSelect = document.getElementById('filterLevel');
 const addTermButton = document.getElementById('addTerm');
 const clearAllButton = document.getElementById('clearAll');
 const blacklistItems = document.getElementById('blacklistItems');
@@ -31,28 +32,49 @@ function renderBlacklist() {
   
   blacklistItems.innerHTML = '';
   
-  blacklist.forEach(term => {
-    const item = document.createElement('div');
-    item.className = 'blacklist-item';
+  blacklist.forEach(item => {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'blacklist-item';
     
-    const termText = document.createElement('span');
+    const termInfo = document.createElement('div');
+    termInfo.className = 'term-info';
+    
+    const termText = document.createElement('div');
     termText.className = 'term-text';
-    termText.textContent = term;
+    termText.textContent = item.term;
+    
+    const termLevel = document.createElement('div');
+    termLevel.className = 'term-level';
+    termLevel.textContent = getLevelDisplayName(item.level);
+    
+    termInfo.appendChild(termText);
+    termInfo.appendChild(termLevel);
     
     const removeButton = document.createElement('button');
     removeButton.className = 'remove-btn';
     removeButton.textContent = 'Remove';
-    removeButton.addEventListener('click', () => removeTerm(term));
+    removeButton.addEventListener('click', () => removeTerm(item.term));
     
-    item.appendChild(termText);
-    item.appendChild(removeButton);
-    blacklistItems.appendChild(item);
+    itemDiv.appendChild(termInfo);
+    itemDiv.appendChild(removeButton);
+    blacklistItems.appendChild(itemDiv);
   });
+}
+
+// Function to get display name for filter level
+function getLevelDisplayName(level) {
+  switch (level) {
+    case 'content': return 'Content Only';
+    case 'search': return 'Search Results';
+    case 'full': return 'Full Block';
+    default: return 'Unknown';
+  }
 }
 
 // Function to add a new term
 async function addTerm() {
   const term = newTermInput.value.trim();
+  const level = filterLevelSelect.value;
   
   if (!term) {
     showStatus('Please enter a term to block', true);
@@ -67,14 +89,15 @@ async function addTerm() {
   try {
     const response = await browser.runtime.sendMessage({
       action: 'addTerm',
-      term: term
+      term: term,
+      level: level
     });
     
     if (response.success) {
       blacklist = response.blacklist;
       renderBlacklist();
       newTermInput.value = '';
-      showStatus(`"${term}" added to blacklist`);
+      showStatus(`"${term}" added to blacklist (${getLevelDisplayName(level)})`);
     } else {
       showStatus(response.error || 'Failed to add term', true);
     }

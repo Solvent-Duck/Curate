@@ -15,8 +15,15 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Add a new term to the blacklist
     browser.storage.local.get(['blacklist']).then((result) => {
       const blacklist = result.blacklist || [];
-      if (!blacklist.includes(message.term.toLowerCase())) {
-        blacklist.push(message.term.toLowerCase());
+      const newTerm = {
+        term: message.term.toLowerCase(),
+        level: message.level || 'content'
+      };
+      
+      // Check if term already exists
+      const existingIndex = blacklist.findIndex(item => item.term === newTerm.term);
+      if (existingIndex === -1) {
+        blacklist.push(newTerm);
         browser.storage.local.set({ blacklist: blacklist }).then(() => {
           // Notify all tabs to re-filter content
           browser.tabs.query({}).then((tabs) => {
@@ -39,7 +46,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Remove a term from the blacklist
     browser.storage.local.get(['blacklist']).then((result) => {
       const blacklist = result.blacklist || [];
-      const index = blacklist.indexOf(message.term.toLowerCase());
+      const index = blacklist.findIndex(item => item.term === message.term.toLowerCase());
       if (index > -1) {
         blacklist.splice(index, 1);
         browser.storage.local.set({ blacklist: blacklist }).then(() => {
