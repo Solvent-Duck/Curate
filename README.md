@@ -1,21 +1,21 @@
 # Curate Firefox Extension
 
-A powerful Firefox extension that allows users to maintain a blacklist of terms to filter unwanted content from webpages. The extension provides three levels of filtering strictness to give users precise control over what content is blocked.
+A Firefox extension that maintains a blacklist of terms and surgically removes matching content units from webpages. Curate is optimized for feed cards, search results, comments, and article containers so removals reflow naturally without leaving obvious gaps.
 
 ## Features
 
-- **Three Filter Levels**: Choose how strictly to filter content
-  - **Content Only**: Blocks webpage content containing blacklisted terms
-  - **Search Results**: Prevents URLs containing blacklisted terms from appearing in search results
-  - **Full Block**: Blocks everything containing blacklisted terms, including entire pages
-- **Smart Content Filtering**: Automatically detects and hides content containing blacklisted terms
-- **Surgical Removal**: Only removes the smallest possible elements containing blacklisted terms, preserving page layout
+- **Three Filter Levels**: Choose how strictly Curate filters
+  - **Content Only**: Removes matching content units from feeds and pages
+  - **Search Results**: Removes matching search result units based on result text and destination URLs
+  - **Full Block**: Blocks entire pages when URL, title, or page text match a full-block term
+- **Site Adapters**: Prioritized handling for YouTube, Reddit, Google, Bing, DuckDuckGo, and generic article/feed layouts
+- **Surgical Removal**: Removes matching DOM units instead of blanking them with `display: none`
 - **Real-time Updates**: Changes apply immediately across all open tabs without page refreshes
 - **Dynamic Content Support**: Filters content that loads dynamically (social media feeds, SPAs, etc.)
 - **Privacy Focused**: All processing happens locally in your browser
 - **Easy Management**: Simple popup interface for managing your blacklist
-- **Case Insensitive**: Terms matched regardless of capitalization
-- **Layout Preservation**: Removes content seamlessly without breaking page structure
+- **Word-aware Matching**: Case-insensitive phrase matching reduces false positives from raw substring checks
+- **Automated Tests**: Matching and blacklist normalization are covered by the built-in Node test suite
 
 ## Filter Levels Explained
 
@@ -51,21 +51,22 @@ A powerful Firefox extension that allows users to maintain a blacklist of terms 
 
 ## How It Works
 
-Curate uses advanced content detection algorithms to scan web pages for your blacklisted terms. When matches are found, the extension identifies the smallest possible element containing the blacklisted content and removes only that specific element. This surgical approach ensures that the rest of the page remains intact and functional, making it appear as if the unwanted content was never there. The extension works across all websites and handles both static and dynamically loaded content.
+Curate compiles your blacklist into matchers and evaluates content units on each page using site adapters and generic fallbacks. When a content unit matches, Curate removes the element from the DOM, preserves a restoration marker for re-filtering, and lets the surrounding layout naturally reflow. On search pages, matches are evaluated against result text and destination URLs. Full-block terms can block an entire page when page-level signals match.
 
 ## Files Structure
 
 ```
 Curate/
 ├── manifest.json          # Extension manifest
+├── core.js                # Shared blacklist normalization and matching utilities
 ├── background.js          # Background script for storage and communication
 ├── content.js            # Content script for filtering webpage content
 ├── popup.html            # Popup interface HTML
 ├── popup.js              # Popup interface JavaScript
 ├── options.html          # Options page HTML
-└── icons/                # Extension icons (placeholder)
-    ├── icon-48.png
-    └── icon-96.png
+├── test-page.html        # Manual fixture page for extension testing
+└── tests/
+    └── core.test.js      # Automated tests for matching and blacklist rules
 ```
 
 ## Development
@@ -76,6 +77,7 @@ This extension is built using the WebExtensions API and is compatible with Firef
 - **Local Storage**: For persisting blacklist data
 - **Content Scripts**: For filtering webpage content
 - **MutationObserver**: For detecting dynamic content changes
+- **Node Test Runner**: For automated verification of blacklist logic
 
 ## Privacy
 

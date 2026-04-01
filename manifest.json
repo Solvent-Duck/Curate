@@ -1,12 +1,8 @@
 {
   "manifest_version": 2,
   "name": "Curate",
-  "version": "1.0.0",
-  "description": "Maintain a blacklist of terms to block unwanted content from webpages",
-  "icons": {
-    "48": "icons/icon-48.png",
-    "96": "icons/icon-96.png"
-  },
+  "version": "1.1.0",
+  "description": "Maintain a blacklist of terms to surgically remove unwanted content from webpages",
   "permissions": [
     "activeTab",
     "storage",
@@ -14,12 +10,12 @@
     "<all_urls>"
   ],
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["core.js", "background.js"]
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"],
+      "js": ["core.js", "content.js"],
       "run_at": "document_end"
     }
   ],

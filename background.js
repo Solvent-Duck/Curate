@@ -1,92 +1,189 @@
-// Background script for Curate extension
-// Handles communication between popup, content scripts, and storage
+// Background script for Curate extension.
+// Handles storage, migrations, settings, and tab broadcasts.
 
-// Listen for messages from content scripts and popup
-browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "getBlacklist") {
-    // Return the current blacklist from storage
-    browser.storage.local.get(['blacklist']).then((result) => {
-      sendResponse({ blacklist: result.blacklist || [] });
+async function readState() {
+  const result = await browser.storage.local.get([
+    'blacklist',
+    'storageVersion',
+    'debug',
+    'pausedSites'
+  ]);
+  const migratedBlacklist = CurateCore.migrateBlacklist(result.blacklist || []);
+  const storageVersion = result.storageVersion || 0;
+  const debug = Boolean(result.debug);
+  const pausedSites = Array.isArray(result.pausedSites)
+    ? result.pausedSites.map(CurateCore.normalizeHostname).filter(Boolean)
+    : [];
+
+  if (
+    storageVersion !== CurateCore.STORAGE_VERSION ||
+    JSON.stringify(migratedBlacklist) !== JSON.stringify(result.blacklist || []) ||
+    JSON.stringify(pausedSites) !== JSON.stringify(result.pausedSites || [])
+  ) {
+    await browser.storage.local.set({
+      blacklist: migratedBlacklist,
+      pausedSites: pausedSites,
+      storageVersion: CurateCore.STORAGE_VERSION
     });
-    return true; // Keep the message channel open for async response
   }
-  
-  if (message.action === "addTerm") {
-    // Add a new term to the blacklist
-    browser.storage.local.get(['blacklist']).then((result) => {
-      const blacklist = result.blacklist || [];
-      const newTerm = {
-        term: message.term.toLowerCase(),
-        level: message.level || 'content'
-      };
-      
-      // Check if term already exists
-      const existingIndex = blacklist.findIndex(item => item.term === newTerm.term);
-      if (existingIndex === -1) {
-        blacklist.push(newTerm);
-        browser.storage.local.set({ blacklist: blacklist }).then(() => {
-          // Notify all tabs to re-filter content
-          browser.tabs.query({}).then((tabs) => {
-            tabs.forEach(tab => {
-              browser.tabs.sendMessage(tab.id, { action: "updateBlacklist", blacklist: blacklist }).catch(() => {
-                // Ignore errors for tabs that don't have content scripts
-              });
-            });
-          });
-          sendResponse({ success: true, blacklist: blacklist });
-        });
-      } else {
-        sendResponse({ success: false, error: "Term already exists" });
-      }
-    });
-    return true;
+
+  return {
+    blacklist: migratedBlacklist,
+    debug: debug,
+    pausedSites: pausedSites
+  };
+}
+
+async function broadcastState(overrides = {}) {
+  const state = Object.assign(await readState(), overrides);
+  const tabs = await browser.tabs.query({});
+
+  await Promise.all(tabs.map((tab) => {
+    if (!tab.id) {
+      return Promise.resolve();
+    }
+    return browser.tabs.sendMessage(tab.id, {
+      action: 'updateState',
+      blacklist: state.blacklist,
+      debug: state.debug,
+      pausedSites: state.pausedSites
+    }).catch(() => undefined);
+  }));
+}
+
+async function writeBlacklist(blacklist) {
+  const migratedBlacklist = CurateCore.migrateBlacklist(blacklist);
+  await browser.storage.local.set({
+    blacklist: migratedBlacklist,
+    storageVersion: CurateCore.STORAGE_VERSION
+  });
+  await broadcastState({ blacklist: migratedBlacklist });
+  return migratedBlacklist;
+}
+
+async function setDebug(enabled) {
+  await browser.storage.local.set({ debug: Boolean(enabled) });
+  await broadcastState({ debug: Boolean(enabled) });
+  return readState();
+}
+
+async function togglePausedSite(hostname) {
+  const normalizedHostname = CurateCore.normalizeHostname(hostname);
+  const state = await readState();
+  const pausedSites = new Set(state.pausedSites);
+
+  if (pausedSites.has(normalizedHostname)) {
+    pausedSites.delete(normalizedHostname);
+  } else if (normalizedHostname) {
+    pausedSites.add(normalizedHostname);
   }
-  
-  if (message.action === "removeTerm") {
-    // Remove a term from the blacklist
-    browser.storage.local.get(['blacklist']).then((result) => {
-      const blacklist = result.blacklist || [];
-      const index = blacklist.findIndex(item => item.term === message.term.toLowerCase());
-      if (index > -1) {
-        blacklist.splice(index, 1);
-        browser.storage.local.set({ blacklist: blacklist }).then(() => {
-          // Notify all tabs to re-filter content
-          browser.tabs.query({}).then((tabs) => {
-            tabs.forEach(tab => {
-              browser.tabs.sendMessage(tab.id, { action: "updateBlacklist", blacklist: blacklist }).catch(() => {
-                // Ignore errors for tabs that don't have content scripts
-              });
-            });
-          });
-          sendResponse({ success: true, blacklist: blacklist });
-        });
-      } else {
-        sendResponse({ success: false, error: "Term not found" });
-      }
-    });
-    return true;
+
+  const nextPausedSites = Array.from(pausedSites).sort();
+  await browser.storage.local.set({
+    pausedSites: nextPausedSites,
+    storageVersion: CurateCore.STORAGE_VERSION
+  });
+  await broadcastState({ pausedSites: nextPausedSites });
+  return {
+    pausedSites: nextPausedSites,
+    paused: nextPausedSites.includes(normalizedHostname)
+  };
+}
+
+async function addOrUpdateTerm(term, level) {
+  const normalizedTerm = CurateCore.normalizeTerm(term);
+  if (normalizedTerm.length < 2) {
+    return { success: false, error: 'Term must be at least 2 characters long' };
   }
-  
-  if (message.action === "clearBlacklist") {
-    // Clear the entire blacklist
-    browser.storage.local.set({ blacklist: [] }).then(() => {
-      // Notify all tabs to re-filter content
-      browser.tabs.query({}).then((tabs) => {
-        tabs.forEach(tab => {
-          browser.tabs.sendMessage(tab.id, { action: "updateBlacklist", blacklist: [] }).catch(() => {
-            // Ignore errors for tabs that don't have content scripts
-          });
-        });
+  if (!CurateCore.isValidLevel(level)) {
+    return { success: false, error: 'Invalid filter level' };
+  }
+
+  const state = await readState();
+  const blacklist = state.blacklist.slice();
+  const existing = blacklist.find((entry) => entry.term === normalizedTerm);
+
+  if (existing) {
+    existing.level = level;
+    const updated = await writeBlacklist(blacklist);
+    return { success: true, status: 'updated', blacklist: updated };
+  }
+
+  blacklist.push({ term: normalizedTerm, level: level });
+  const updated = await writeBlacklist(blacklist);
+  return { success: true, status: 'added', blacklist: updated };
+}
+
+async function removeTerm(term) {
+  const normalizedTerm = CurateCore.normalizeTerm(term);
+  const state = await readState();
+  const blacklist = state.blacklist.filter((entry) => entry.term !== normalizedTerm);
+
+  if (blacklist.length === state.blacklist.length) {
+    return { success: false, error: 'Term not found' };
+  }
+
+  const updated = await writeBlacklist(blacklist);
+  return { success: true, blacklist: updated };
+}
+
+async function getActiveTab() {
+  const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+  return tabs[0] || null;
+}
+
+async function forceRescanTab(tabId) {
+  if (!tabId) {
+    const activeTab = await getActiveTab();
+    tabId = activeTab && activeTab.id;
+  }
+  if (!tabId) {
+    return { success: false, error: 'No active tab found' };
+  }
+
+  await browser.tabs.sendMessage(tabId, { action: 'forceRefilter' }).catch(() => undefined);
+  return { success: true };
+}
+
+browser.runtime.onMessage.addListener((message) => {
+  switch (message.action) {
+    case 'getBlacklist':
+      return readState();
+    case 'addTerm':
+      return addOrUpdateTerm(message.term, message.level || 'content');
+    case 'removeTerm':
+      return removeTerm(message.term);
+    case 'clearBlacklist':
+      return writeBlacklist([]).then((blacklist) => ({ success: true, blacklist: blacklist }));
+    case 'setDebug':
+      return setDebug(message.enabled).then((state) => ({ success: true, debug: state.debug }));
+    case 'togglePausedSite':
+      return togglePausedSite(message.hostname).then((result) => Object.assign({ success: true }, result));
+    case 'forceRescan':
+      return forceRescanTab(message.tabId);
+    case 'getPopupState':
+      return Promise.all([readState(), getActiveTab()]).then(([state, activeTab]) => {
+        let hostname = '';
+        if (activeTab && activeTab.url) {
+          try {
+            hostname = CurateCore.normalizeHostname(new URL(activeTab.url).hostname);
+          } catch (error) {
+            hostname = '';
+          }
+        }
+        return {
+          blacklist: state.blacklist,
+          debug: state.debug,
+          pausedSites: state.pausedSites,
+          activeHostname: hostname,
+          isPausedOnActiveSite: hostname ? state.pausedSites.includes(hostname) : false
+        };
       });
-      sendResponse({ success: true, blacklist: [] });
-    });
-    return true;
+    default:
+      return Promise.resolve({ success: false, error: 'Unknown action' });
   }
 });
 
-// Initialize storage with empty blacklist if it doesn't exist
-browser.storage.local.get(['blacklist']).then((result) => {
-  if (!result.blacklist) {
-    browser.storage.local.set({ blacklist: [] });
-  }
+readState().catch((error) => {
+  console.error('Curate failed to initialize storage', error);
 });

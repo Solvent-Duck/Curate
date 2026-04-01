@@ -4,241 +4,284 @@
   <meta charset="utf-8">
   <title>Curate - Content Filter</title>
   <style>
+    :root {
+      --bg: #eef1ea;
+      --panel: #fbfcf8;
+      --border: #d4dbc9;
+      --text: #182018;
+      --muted: #556255;
+      --accent: #1f6b4f;
+      --accent-dark: #174e3a;
+      --danger: #b3473a;
+      --danger-dark: #8e382d;
+    }
+
     body {
-      width: 350px;
-      min-height: 400px;
+      width: 360px;
+      min-height: 480px;
       margin: 0;
       padding: 16px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f8f9fa;
+      font-family: "SF Pro Text", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(31, 107, 79, 0.14), transparent 38%),
+        linear-gradient(180deg, #f4f6ef 0%, var(--bg) 100%);
+      color: var(--text);
     }
-    
+
     .header {
-      text-align: center;
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 2px solid #e9ecef;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
     }
-    
+
     .header h1 {
       margin: 0;
-      font-size: 24px;
-      color: #212529;
-      font-weight: 600;
+      font-size: 25px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
     }
-    
+
     .header p {
-      margin: 8px 0 0 0;
-      color: #6c757d;
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .panel {
+      margin-bottom: 14px;
+      padding: 14px;
+      background: rgba(251, 252, 248, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 10px 24px rgba(36, 54, 36, 0.06);
+    }
+
+    .panel h3 {
+      margin: 0 0 10px;
       font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
     }
-    
-    .add-term-section {
-      margin-bottom: 20px;
-      padding: 16px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+    .site-label {
+      margin: 0 0 10px;
+      font-size: 15px;
+      font-weight: 600;
+      word-break: break-word;
     }
-    
-    .add-term-section h3 {
-      margin: 0 0 12px 0;
-      font-size: 16px;
-      color: #212529;
-    }
-    
-    .input-group {
-      display: flex;
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-bottom: 12px;
     }
-    
-    input[type="text"] {
-      flex: 1;
-      padding: 8px 12px;
-      border: 1px solid #ced4da;
-      border-radius: 4px;
-      font-size: 14px;
+
+    .input-group {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
     }
-    
-    input[type="text"]:focus {
-      outline: none;
-      border-color: #007bff;
-      box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-    }
-    
+
+    input[type="text"],
     select {
-      padding: 8px 12px;
-      border: 1px solid #ced4da;
-      border-radius: 4px;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
       font-size: 14px;
-      background: white;
-      cursor: pointer;
+      background: #fff;
+      color: var(--text);
     }
-    
+
+    input[type="text"]:focus,
     select:focus {
       outline: none;
-      border-color: #007bff;
-      box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(31, 107, 79, 0.18);
     }
-    
+
+    .stack-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
     button {
-      padding: 8px 16px;
-      background: #007bff;
-      color: white;
+      padding: 10px 12px;
       border: none;
-      border-radius: 4px;
+      border-radius: 10px;
       cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      transition: background-color 0.2s;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      background: var(--accent);
+      transition: background-color 0.2s ease;
     }
-    
+
     button:hover {
-      background: #0056b3;
+      background: var(--accent-dark);
     }
-    
+
     button:disabled {
-      background: #6c757d;
+      background: #96a296;
       cursor: not-allowed;
     }
-    
-    .blacklist-section {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      overflow: hidden;
+
+    .secondary-btn {
+      background: #6b7a6b;
     }
-    
+
+    .secondary-btn:hover {
+      background: #566356;
+    }
+
+    .clear-btn {
+      background: var(--danger);
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .clear-btn:hover {
+      background: var(--danger-dark);
+    }
+
     .blacklist-header {
-      padding: 16px;
-      border-bottom: 1px solid #e9ecef;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 10px;
     }
-    
+
     .blacklist-header h3 {
       margin: 0;
-      font-size: 16px;
-      color: #212529;
     }
-    
-    .clear-btn {
-      background: #dc3545;
-      padding: 4px 8px;
-      font-size: 12px;
-    }
-    
-    .clear-btn:hover {
-      background: #c82333;
-    }
-    
+
     .blacklist-items {
       max-height: 200px;
       overflow-y: auto;
+      border-top: 1px solid rgba(212, 219, 201, 0.7);
     }
-    
+
     .blacklist-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 16px;
-      border-bottom: 1px solid #f8f9fa;
-      transition: background-color 0.2s;
+      gap: 8px;
+      padding: 12px 2px;
+      border-bottom: 1px solid rgba(212, 219, 201, 0.7);
     }
-    
-    .blacklist-item:hover {
-      background: #f8f9fa;
-    }
-    
-    .blacklist-item:last-child {
-      border-bottom: none;
-    }
-    
-    .term-text {
-      flex: 1;
-      font-size: 14px;
-      color: #212529;
-    }
-    
+
     .term-info {
-      flex: 1;
+      min-width: 0;
     }
-    
+
+    .term-text {
+      font-size: 14px;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+
     .term-level {
+      margin-top: 3px;
       font-size: 12px;
-      color: #6c757d;
-      margin-top: 2px;
+      color: var(--muted);
     }
-    
+
     .remove-btn {
-      background: #6c757d;
-      padding: 4px 8px;
+      background: #7a6b6b;
+      padding: 6px 10px;
       font-size: 12px;
-      margin-left: 8px;
+      flex-shrink: 0;
     }
-    
+
     .remove-btn:hover {
-      background: #545b62;
+      background: #635656;
     }
-    
-    .empty-state {
-      padding: 32px 16px;
-      text-align: center;
-      color: #6c757d;
-      font-size: 14px;
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
     }
-    
+
     .status-message {
-      padding: 8px 12px;
-      margin: 8px 0;
-      border-radius: 4px;
-      font-size: 14px;
+      padding: 9px 11px;
+      margin-top: 10px;
+      border-radius: 10px;
+      font-size: 13px;
       display: none;
     }
-    
+
     .status-success {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
+      background: #d9eadf;
+      color: #1e4b2e;
+      border: 1px solid #bfd9c8;
     }
-    
+
     .status-error {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
+      background: #f3ddda;
+      color: #6b241c;
+      border: 1px solid #e5c3be;
     }
-    
-    .footer {
-      margin-top: 20px;
+
+    .empty-state {
+      padding: 24px 8px;
       text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .footer {
+      margin-top: 10px;
       font-size: 12px;
-      color: #6c757d;
+      line-height: 1.5;
+      color: var(--muted);
+      text-align: center;
     }
   </style>
 </head>
 <body>
   <div class="header">
     <h1>Curate</h1>
-    <p>Filter unwanted content from webpages</p>
+    <p>Blacklist terms, repair the feed around removals, and control the demo live.</p>
   </div>
-  
-  <div class="add-term-section">
-    <h3>Add Term to Blacklist</h3>
+
+  <div class="panel">
+    <h3>Active Site</h3>
+    <p class="site-label" id="activeSiteLabel">Loading...</p>
+    <div class="actions">
+      <button id="pauseSiteButton" class="secondary-btn">Pause Site</button>
+      <button id="rescanButton" class="secondary-btn">Re-scan Page</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Add Blacklist Term</h3>
     <div class="input-group">
       <input type="text" id="newTerm" placeholder="Enter term to block..." maxlength="100">
-      <select id="filterLevel">
-        <option value="content">Content Only</option>
-        <option value="search">Search Results</option>
-        <option value="full">Full Block</option>
-      </select>
-      <button id="addTerm">Add</button>
+      <div class="stack-row">
+        <select id="filterLevel">
+          <option value="content">Content Only</option>
+          <option value="search">Search Results</option>
+          <option value="full">Full Block</option>
+        </select>
+        <button id="addTerm">Add</button>
+      </div>
+    </div>
+    <div class="toggle-row" style="margin-top: 10px;">
+      <label for="debugToggle">Debug mode</label>
+      <input type="checkbox" id="debugToggle">
     </div>
     <div id="statusMessage" class="status-message"></div>
   </div>
-  
-  <div class="blacklist-section">
+
+  <div class="panel">
     <div class="blacklist-header">
       <h3>Blacklisted Terms</h3>
       <button id="clearAll" class="clear-btn">Clear All</button>
@@ -247,11 +290,12 @@
       <div class="empty-state">No terms in blacklist</div>
     </div>
   </div>
-  
+
   <div class="footer">
-    <p>Terms are case-insensitive and will hide any content containing them</p>
+    Terms use case-insensitive phrase matching. Search mode also evaluates result URLs. Full block evaluates the whole page.
   </div>
-  
+
+  <script src="core.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>
